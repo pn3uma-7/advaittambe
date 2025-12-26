@@ -1,163 +1,103 @@
 // ================================
-// FILM REEL BACKGROUND ANIMATION
+// MOVIE DATA
 // ================================
-class FilmReelAnimation {
-    constructor() {
-        this.canvas = document.getElementById('filmReelCanvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.reelStrips = [];
-        this.init();
-    }
+let movies = []; // Will be populated from API
 
-    init() {
-        this.resize();
-        window.addEventListener('resize', () => this.resize());
-        this.createReelStrips();
-        this.animate();
-    }
+// API Configuration
+const API_BASE_URL = 'http://localhost:3000'; // Change this to your deployed API URL
 
-    resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    }
+/**
+ * Fetch filmography from the backend API
+ */
+async function fetchFilmography() {
+    try {
+        console.log('Fetching filmography from API...');
+        const response = await fetch(`${API_BASE_URL}/api/filmography`);
+        const result = await response.json();
 
-    createReelStrips() {
-        // Create vertical film strips
-        const stripCount = Math.ceil(this.canvas.width / 150);
-        for (let i = 0; i < stripCount; i++) {
-            this.reelStrips.push({
-                x: i * 150 + Math.random() * 50,
-                y: Math.random() * this.canvas.height,
-                speed: 0.2 + Math.random() * 0.3,
-                opacity: 0.05 + Math.random() * 0.1
-            });
+        if (result.success && result.data) {
+            movies = result.data;
+            console.log(`Loaded ${movies.length} movies from ${result.source}`);
+            return movies;
+        } else {
+            throw new Error(result.error || 'Failed to fetch filmography');
         }
-    }
-
-    drawFilmStrip(x, y, opacity) {
-        const stripWidth = 40;
-        const holeSize = 6;
-        const holeSpacing = 20;
-
-        this.ctx.save();
-        this.ctx.globalAlpha = opacity;
-
-        // Draw film strip edges
-        this.ctx.strokeStyle = '#ffd700';
-        this.ctx.lineWidth = 2;
-
-        // Left edge
-        this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(x, y + 200);
-        this.ctx.stroke();
-
-        // Right edge
-        this.ctx.beginPath();
-        this.ctx.moveTo(x + stripWidth, y);
-        this.ctx.lineTo(x + stripWidth, y + 200);
-        this.ctx.stroke();
-
-        // Draw perforations
-        this.ctx.fillStyle = '#ffd700';
-        for (let i = 0; i < 10; i++) {
-            const holeY = y + i * holeSpacing;
-
-            // Left perforations
-            this.ctx.fillRect(x - holeSize/2, holeY, holeSize, holeSize);
-
-            // Right perforations
-            this.ctx.fillRect(x + stripWidth - holeSize/2, holeY, holeSize, holeSize);
-        }
-
-        this.ctx.restore();
-    }
-
-    animate() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.reelStrips.forEach(strip => {
-            // Draw film strip
-            this.drawFilmStrip(strip.x, strip.y, strip.opacity);
-
-            // Move strip downward
-            strip.y += strip.speed;
-
-            // Reset to top when strip goes off screen
-            if (strip.y > this.canvas.height) {
-                strip.y = -200;
-            }
-        });
-
-        requestAnimationFrame(() => this.animate());
+    } catch (error) {
+        console.error('Error fetching filmography:', error);
+        // Fallback to hardcoded data if API fails
+        movies = getFallbackMovies();
+        console.log('Using fallback movie data');
+        return movies;
     }
 }
 
-// ================================
-// MOVIE DATA
-// ================================
-const movies = [
-    {
-        title: "Family Man S3",
-        role: "Production Coordinator",
-        year: "2024",
-        poster: "https://m.media-amazon.com/images/M/MV5BYTlkN2Y1YjktYjI5OS00NGFlLWI4MjktNWRhM2VlNjY5MzZiXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    },
-    {
-        title: "Dabba Cartel",
-        role: "Production Coordinator",
-        year: "2024",
-        poster: "https://m.media-amazon.com/images/M/MV5BNzFlYjcwMGMtMWM3Yy00YjNmLWI5ZmEtYzFmN2E2ZGY3MGViXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    },
-    {
-        title: "Salaar",
-        role: "Production Coordinator",
-        year: "2023",
-        poster: "https://m.media-amazon.com/images/M/MV5BYjJjOGNhODMtOWZmMC00NTQ1LTk0ZDEtMDEzOGQzYWYzNDNkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    },
-    {
-        title: "Leo",
-        role: "Production Coordinator",
-        year: "2023",
-        poster: "https://m.media-amazon.com/images/M/MV5BNzAyM2E1MWYtNzBkZi00NjdkLTk2ZTEtODcwMGZkMmU4YmM3XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    },
-    {
-        title: "Sam Bahadur",
-        role: "Production Coordinator",
-        year: "2023",
-        poster: "https://m.media-amazon.com/images/M/MV5BOGY5NzcyMTEtNTk2ZC00NWM3LWJkNmQtZTk5MDdmODcyOWJkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    },
-    {
-        title: "The Crew",
-        role: "Production Coordinator",
-        year: "2024",
-        poster: "https://m.media-amazon.com/images/M/MV5BNmQzNTYwMjktYWJkNy00ZDkzLWI3OWEtZTZjNmZmNzI4NzZkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    },
-    {
-        title: "Adipurush",
-        role: "Production Coordinator",
-        year: "2023",
-        poster: "https://m.media-amazon.com/images/M/MV5BN2Y3YWJkMDMtMmE2Ni00ZTU1LWJlZmEtNGRlMGUxNGQ0NzI1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    },
-    {
-        title: "Guntur Kaaram",
-        role: "Production Coordinator",
-        year: "2024",
-        poster: "https://m.media-amazon.com/images/M/MV5BN2FiYTczZGUtZjBjZC00NjU0LTk1NjUtNjA1MjJlNWRjMjgxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    },
-    {
-        title: "Laal Singh Chaddha",
-        role: "Trainee FX Artist",
-        year: "2022",
-        poster: "https://m.media-amazon.com/images/M/MV5BODU2MmM4OTktNDdlNC00OTdmLWJlYjgtMjMzZDYwZGJlNzVkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    },
-    {
-        title: "Bhool Bhulaiyaa 2",
-        role: "Trainee FX Artist",
-        year: "2022",
-        poster: "https://m.media-amazon.com/images/M/MV5BYzI4ZGNjYjEtZGUwYi00Yzk5LWE5ZjMtNWQ2NTY1MDUxMzI2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-    }
-];
+/**
+ * Fallback movie data in case API is unavailable
+ */
+function getFallbackMovies() {
+    return [
+        {
+            title: "Family Man S3",
+            role: "Production Coordinator",
+            year: "2024",
+            poster: "https://m.media-amazon.com/images/M/MV5BYTlkN2Y1YjktYjI5OS00NGFlLWI4MjktNWRhM2VlNjY5MzZiXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        },
+        {
+            title: "Dabba Cartel",
+            role: "Production Coordinator",
+            year: "2024",
+            poster: "https://m.media-amazon.com/images/M/MV5BNzFlYjcwMGMtMWM3Yy00YjNmLWI5ZmEtYzFmN2E2ZGY3MGViXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        },
+        {
+            title: "Salaar",
+            role: "Production Coordinator",
+            year: "2023",
+            poster: "https://m.media-amazon.com/images/M/MV5BYjJjOGNhODMtOWZmMC00NTQ1LTk0ZDEtMDEzOGQzYWYzNDNkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        },
+        {
+            title: "Leo",
+            role: "Production Coordinator",
+            year: "2023",
+            poster: "https://m.media-amazon.com/images/M/MV5BNzAyM2E1MWYtNzBkZi00NjdkLTk2ZTEtODcwMGZkMmU4YmM3XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        },
+        {
+            title: "Sam Bahadur",
+            role: "Production Coordinator",
+            year: "2023",
+            poster: "https://m.media-amazon.com/images/M/MV5BOGY5NzcyMTEtNTk2ZC00NWM3LWJkNmQtZTk5MDdmODcyOWJkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        },
+        {
+            title: "The Crew",
+            role: "Production Coordinator",
+            year: "2024",
+            poster: "https://m.media-amazon.com/images/M/MV5BNmQzNTYwMjktYWJkNy00ZDkzLWI3OWEtZTZjNmZmNzI4NzZkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        },
+        {
+            title: "Adipurush",
+            role: "Production Coordinator",
+            year: "2023",
+            poster: "https://m.media-amazon.com/images/M/MV5BN2Y3YWJkMDMtMmE2Ni00ZTU1LWJlZmEtNGRlMGUxNGQ0NzI1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        },
+        {
+            title: "Guntur Kaaram",
+            role: "Production Coordinator",
+            year: "2024",
+            poster: "https://m.media-amazon.com/images/M/MV5BN2FiYTczZGUtZjBjZC00NjU0LTk1NjUtNjA1MjJlNWRjMjgxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        },
+        {
+            title: "Laal Singh Chaddha",
+            role: "Trainee FX Artist",
+            year: "2022",
+            poster: "https://m.media-amazon.com/images/M/MV5BODU2MmM4OTktNDdlNC00OTdmLWJlYjgtMjMzZDYwZGJlNzVkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        },
+        {
+            title: "Bhool Bhulaiyaa 2",
+            role: "Trainee FX Artist",
+            year: "2022",
+            poster: "https://m.media-amazon.com/images/M/MV5BYzI4ZGNjYjEtZGUwYi00Yzk5LWE5ZjMtNWQ2NTY1MDUxMzI2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+        }
+    ];
+}
 
 // ================================
 // MOVIE CAROUSEL
@@ -173,7 +113,11 @@ class MovieCarousel {
         this.init();
     }
 
-    init() {
+    async init() {
+        // Fetch filmography data first
+        await fetchFilmography();
+
+        // Then create the carousel
         this.createMovieCards();
         this.createDots();
         this.attachEventListeners();
@@ -212,7 +156,7 @@ class MovieCarousel {
 
     getVisibleCards() {
         const containerWidth = document.querySelector('.carousel-wrapper').offsetWidth;
-        return Math.floor(containerWidth / 330); // 300px card + 30px gap
+        return Math.floor(containerWidth / 310); // 280px card + 30px gap
     }
 
     attachEventListeners() {
@@ -226,7 +170,7 @@ class MovieCarousel {
     }
 
     updateCarousel() {
-        const cardWidth = 330; // 300px + 30px gap
+        const cardWidth = 310; // 280px + 30px gap
         const offset = -this.currentIndex * cardWidth;
         this.track.style.transform = `translateX(${offset}px)`;
         this.updateDots();
@@ -267,7 +211,7 @@ class MovieCarousel {
             } else {
                 this.next();
             }
-        }, 4000); // Rotate every 4 seconds
+        }, 1800); // Rotate every 1.8 seconds (much faster)
     }
 
     stopAutoRotate() {
@@ -463,7 +407,6 @@ class TimelineAnimations {
 // INITIALIZE ALL
 // ================================
 document.addEventListener('DOMContentLoaded', () => {
-    new FilmReelAnimation();
     new MovieCarousel();
     new Navigation();
     new StatsCounter();
