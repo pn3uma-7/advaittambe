@@ -4,8 +4,7 @@
 let movies = []; // Will be populated from API
 
 // API Configuration
-// Change this to your deployed Render.com backend URL after deployment
-const API_BASE_URL = process.env.API_BASE_URL || 'https://advait-imdb-backend.onrender.com';
+const API_BASE_URL = 'https://portfolio-website-y753.onrender.com';
 
 /**
  * Fetch filmography from the backend API
