@@ -4,9 +4,10 @@ This guide explains how to deploy your portfolio website with the backend on Ren
 
 ## Architecture
 
-- **Backend**: Node.js/Express API hosted on Render.com
+- **Backend**: Node.js/Express API hosted on Render.com (used for monthly data updates)
 - **Frontend**: Static HTML/CSS/JS website hosted on Cloudflare Pages
-- **API**: Backend scrapes IMDb filmography and provides it via REST API
+- **Data**: Static JSON file with filmography data (updated monthly)
+- **Update Process**: Run `update-filmography.js` script monthly to refresh data from IMDb
 
 ---
 
@@ -256,14 +257,48 @@ Cloudflare Pages will automatically redeploy.
 
 ---
 
+## Updating Filmography Data
+
+The site now uses **static JSON data** for instant loading without backend dependency.
+
+### Monthly Update Process
+
+1. **Run the update script** (once a month or when IMDb profile changes):
+   ```bash
+   node update-filmography.js
+   ```
+
+2. **Review the changes**:
+   ```bash
+   git diff advaittambe/assets/data/filmography.json
+   ```
+
+3. **Commit and push**:
+   ```bash
+   git add advaittambe/assets/data/filmography.json
+   git commit -m "Update filmography data"
+   git push origin main
+   ```
+
+4. **Auto-deploy**: Cloudflare Pages will automatically deploy the update
+
+### Benefits of Static Data Approach
+
+✅ **Instant loading** - No waiting for backend to wake up
+✅ **No API costs** - Static files served from CDN
+✅ **Better UX** - Page loads immediately for all users
+✅ **Backend optional** - Only needed for monthly updates
+✅ **Reliable** - No dependency on external services for page loads
+
+---
+
 ## Next Steps
 
-- [ ] Set up custom domain for both frontend and backend
-- [ ] Add monitoring/alerting (e.g., UptimeRobot)
-- [ ] Implement rate limiting on backend
+- [ ] Set up custom domain for frontend
+- [ ] Set up monthly reminder to run `update-filmography.js`
 - [ ] Add analytics to frontend (e.g., Cloudflare Web Analytics)
-- [ ] Set up automated backups of filmography data
-- [ ] Consider using environment-based API URLs for local development
+- [ ] Consider automated GitHub Action to run update script monthly
+- [ ] Optionally: Keep backend alive with UptimeRobot for faster updates
 
 ---
 
