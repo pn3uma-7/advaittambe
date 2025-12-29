@@ -1,0 +1,4 @@
+# Cloudflare Pages redirects
+# This ensures all paths serve index.html for single-page navigation
+
+/*    /index.html   200
