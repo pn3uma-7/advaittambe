@@ -3,28 +3,29 @@
 // ================================
 let movies = []; // Will be populated from API
 
-// API Configuration
-const API_BASE_URL = 'https://portfolio-website-y753.onrender.com';
+// Data Configuration
+const FILMOGRAPHY_JSON_PATH = 'assets/data/filmography.json';
 
 /**
- * Fetch filmography from the backend API
+ * Fetch filmography from static JSON file
+ * Updated monthly via script - no backend dependency for page loads
  */
 async function fetchFilmography() {
     try {
-        console.log('Fetching filmography from API...');
-        const response = await fetch(`${API_BASE_URL}/api/filmography`);
+        console.log('Loading filmography from static JSON...');
+        const response = await fetch(FILMOGRAPHY_JSON_PATH);
         const result = await response.json();
 
-        if (result.success && result.data) {
-            movies = result.data;
-            console.log(`Loaded ${movies.length} movies from ${result.source}`);
+        if (result.movies) {
+            movies = result.movies;
+            console.log(`Loaded ${movies.length} movies (last updated: ${result.lastUpdated})`);
             return movies;
         } else {
-            throw new Error(result.error || 'Failed to fetch filmography');
+            throw new Error('Invalid filmography data format');
         }
     } catch (error) {
-        console.error('Error fetching filmography:', error);
-        // Fallback to hardcoded data if API fails
+        console.error('Error loading filmography:', error);
+        // Fallback to hardcoded data if JSON fails
         movies = getFallbackMovies();
         console.log('Using fallback movie data');
         return movies;
